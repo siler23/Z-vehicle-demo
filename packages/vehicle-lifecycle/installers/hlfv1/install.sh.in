@@ -54,13 +54,13 @@ find . -type d | xargs chmod a+rx
 find . -type f | xargs chmod a+r
 
 # Pull the latest versions of all the Docker images.
-docker pull hyperledger/composer-playground:{{ENV}}
-docker pull hyperledger/composer-cli:{{ENV}}
-docker pull hyperledger/composer-rest-server:{{ENV}}
+docker pull hyperledger/composer-playground:0.16.6
+docker pull hyperledger/composer-cli:0.16.6
+docker pull hyperledger/composer-rest-server:0.16.6
 #docker pull hyperledger/vehicle-lifecycle-vda:{{ENV}}
 #docker pull hyperledger/vehicle-lifecycle-manufacturing:{{ENV}}
 #docker pull hyperledger/vehicle-lifecycle-car-builder:{{ENV}}
-docker pull nodered/node-red-docker
+#docker pull sstone1/node-red-docker
 
 # stop all the docker containers
 stop
@@ -108,7 +108,7 @@ docker run \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
   -v $(pwd)/vldstage:/home/composer/vldstage \
   -v $(pwd)/fabric-dev-servers/fabric-scripts/hlfv1/composer/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/home/composer/PeerAdmin \
-  hyperledger/composer-cli:{{ENV}} \
+  hyperledger/composer-cli:0.16.6 \
   card create -p vldstage/connection.json -u PeerAdmin -r PeerAdmin -r ChannelAdmin -f /home/composer/vldstage/PeerAdmin.card -c PeerAdmin/signcerts/Admin@org1.example.com-cert.pem -k PeerAdmin/keystore/114aab0e76bf0c78308f89efc4b8c9423e31568da0c340ca187a9b17aa9a4457_sk
 
 docker run \
@@ -117,7 +117,7 @@ docker run \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
   -v $(pwd)/vldstage:/home/composer/vldstage \
   -v $(pwd)/fabric-dev-servers/fabric-scripts/hlfv1/composer/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/home/composer/PeerAdmin \
-  hyperledger/composer-cli:{{ENV}} \
+  hyperledger/composer-cli:0.16.6 \
   card import -f /home/composer/vldstage/PeerAdmin.card
 
 # Start the playground.
@@ -127,24 +127,42 @@ docker run \
   --name composer \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
   -p 8080:8080 \
-  hyperledger/composer-playground:{{ENV}}
+  hyperledger/composer-playground:0.16.6
 
 # Deploy the business network archive.
+#docker run \
+#  --rm \
+#  --network composer_default \
+#  -v $(pwd)/vehicle-lifecycle-network.bna:/home/composer/vehicle-lifecycle-network.bna \
+#  -v $(pwd)/vldstage:/home/composer/vldstage \
+#  -v $(pwd)/.vld-card-store:/home/composer/.composer \
+#  hyperledger/composer-cli:0.16.6 \
+#  network deploy -c PeerAdmin@hlfv1 -a vehicle-lifecycle-network.bna -A admin -S adminpw -f /home/composer/vldstage/bnaadmin.card
+#Deploy the business network archive.
 docker run \
   --rm \
   --network composer_default \
   -v $(pwd)/vehicle-lifecycle-network.bna:/home/composer/vehicle-lifecycle-network.bna \
   -v $(pwd)/vldstage:/home/composer/vldstage \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
-  hyperledger/composer-cli:{{ENV}} \
-  network deploy -c PeerAdmin@hlfv1 -a vehicle-lifecycle-network.bna -A admin -S adminpw -f /home/composer/vldstage/bnaadmin.card
+  hyperledger/composer-cli:0.16.6 \
+  runtime install -c PeerAdmin@hlfv1 -n vehicle-lifecycle-network
+#Deploy the business network archive.
+docker run \
+  --rm \
+  --network composer_default \
+  -v $(pwd)/vehicle-lifecycle-network.bna:/home/composer/vehicle-lifecycle-network.bna \
+  -v $(pwd)/vldstage:/home/composer/vldstage \
+  -v $(pwd)/.vld-card-store:/home/composer/.composer \
+  hyperledger/composer-cli:0.16.6 \
+  network start -c PeerAdmin@hlfv1 -A admin -S adminpw -a vehicle-lifecycle-network.bna -f /home/composer/vldstage/bnaadmin.card
 
 docker run \
   --rm \
   --network composer_default \
   -v $(pwd)/vldstage:/home/composer/vldstage \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
-  hyperledger/composer-cli:{{ENV}} \
+  hyperledger/composer-cli:0.16.6 \
   card import -f /home/composer/vldstage/bnaadmin.card
 
 # Submit the setup transaction.
@@ -152,7 +170,7 @@ docker run \
   --rm \
   --network composer_default \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
-  hyperledger/composer-cli:{{ENV}} \
+  hyperledger/composer-cli:0.16.6 \
   transaction submit -c admin@vehicle-lifecycle-network -d '{"$class": "org.acme.vehicle.lifecycle.SetupDemo"}'
 
 # correct permissions so that node-red can read cardstore and node-sdk can write to client-data
@@ -169,7 +187,7 @@ docker run \
   -e COMPOSER_CARD=admin@vehicle-lifecycle-network \
   -e COMPOSER_NAMESPACES=required \
   -p 3000:3000 \
-  hyperledger/composer-rest-server:{{ENV}}
+  hyperledger/composer-rest-server:0.16.6
 
 # Wait for the REST server to start and initialize.
 sleep 10
@@ -183,69 +201,78 @@ docker run \
   -e COMPOSER_BASE_URL=http://rest:3000 \
   -v $(pwd)/flows.json:/data/flows.json \
   -p 1880:1880 \
-  nodered/node-red-docker
+  composer-contrib
 
 # Install custom nodes
-docker exec \
-  -e NPM_CONFIG_LOGLEVEL=warn \
-  node-red \
-  bash -c "cd /data && npm install node-red-contrib-composer && npm install node-red-contrib-scx-ibmiotapp"
-docker restart node-red
+#docker exec \
+#  -e NPM_CONFIG_LOGLEVEL=warn \
+#  node-red \
+#  bash -c "cd /data && npm install node-red-contrib-composer && npm install node-red-contrib-scx-ibmiotapp"
+# docker restart node-red
 
 # Wait for Node-RED to start and initialize.
 sleep 10
 
 # Start the VDA application.
-cd $(pwd)/../../vehicle-lifecycle-vda
-npm install
-bower install
-npm build
-npm start > /dev/null 2>&1 &
+#cd $(pwd)/../../vehicle-lifecycle-vda
+#npm install
+#bower install
+#npm build
+#npm start > /dev/null 2>&1 &
 # OLD DOCKER START FOR VDA
-#docker run \
-#-d \
-#--network composer_default \
-#--name vda \
-#-e COMPOSER_BASE_URL=http://rest:3000 \
-#-e NODE_RED_BASE_URL=ws://node-red:1880 \
-#-p 6001:6001 \
-#hyperledger/vehicle-lifecycle-vda:{{ENV}}
+docker run \
+-d \
+--network composer_default \
+--name vda \
+-e COMPOSER_BASE_URL=http://rest:3000 \
+-e NODE_RED_BASE_URL=ws://node-red:1880 \
+-p 6001:6001 \
+vda
 
 # Start the manufacturing application.
-cd $(pwd)/../vehicle-lifecycle-manufacturing
-npm install
-bower install
-npm build
-npm start > /dev/null 2>&1 &
+#cd $(pwd)/../vehicle-lifecycle-manufacturing
+#npm install
+#bower install
+#npm build
+#npm start > /dev/null 2>&1 &
 # OLD DOCKER START FOR MANUFACTURING
-#docker run \
-#-d \
-#--network composer_default \
-#--name manufacturing \
-#-e COMPOSER_BASE_URL=http://rest:3000 \
-#-e NODE_RED_BASE_URL=ws://node-red:1880 \
-#-p 6002:6001 \
-#hyperledger/vehicle-lifecycle-manufacturing:{{ENV}}
+docker run \
+-d \
+--network composer_default \
+--name manufacturing \
+-e COMPOSER_BASE_URL=http://rest:3000 \
+-e NODE_RED_BASE_URL=ws://node-red:1880 \
+-p 6002:6001 \
+manufacture
 
 # Start the car-builder application.
-cd $(pwd)/../vehicle-lifecycle-car-builder
-npm install
-npm run build
-npm start > /dev/null 2>&1 &
+#cd $(pwd)/../vehicle-lifecycle-car-builder
+#npm install
+#npm run build
+#npm start > /dev/null 2>&1 &
 # OLD DOCKER START FOR CAR BUILDER
-#docker run \
-#-d \
-#--network composer_default \
-#--name car-builder \
-#-e NODE_RED_BASE_URL=ws://node-red:1880 \
-#-p 8100:8100 \
-#hyperledger/vehicle-lifecycle-car-builder:{{ENV}}
+docker run \
+-d \
+--network composer_default \
+--name car-builder \
+-e COMPOSER_BASE_URL=http://rest:3000 \
+-e NODE_RED_BASE_URL=ws://node-red:1880 \
+-p 8100:8100 \
+car-builder
 
 # Start the insurance view
-cd $(pwd)/../prince-insurance
-npm install
-npm build
-npm start > /dev/null 2>&1 &
+#cd $(pwd)/../prince-insurance
+#npm install
+#npm build
+#npm start > /dev/null 2>&1 &
+docker run \
+-d \
+--network composer_default \
+--name insurer \
+-e COMPOSER_BASE_URL=http://rest:3000 \
+-e NODE_RED_BASE_URL=ws://node-red:1880 \
+-p 4200:4200 \
+insurance
 
 # Wait for the applications to start and initialize.
 sleep 10
