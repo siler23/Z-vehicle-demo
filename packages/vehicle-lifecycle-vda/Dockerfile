@@ -1,14 +1,15 @@
-FROM node:8-alpine
+FROM s390x/alpine:3.7
 ENV NPM_CONFIG_LOGLEVEL warn
+RUN apk add --update nodejs 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY package.json bower.json .bowerrc /usr/src/app/
 RUN apk add --no-cache git && \
-    npm install --production -g bower pm2 && \
+    npm install -g --unsafe-perm --production bower pm2 && \
     npm install --production  && \
     bower install && \
     bower cache clean && \
-    npm uninstall -g bower && \
+    npm uninstall -g --unsafe-perm bower && \
     npm cache clean --force && \
     apk del git
 COPY . /usr/src/app/

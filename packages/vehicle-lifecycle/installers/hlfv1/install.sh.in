@@ -54,18 +54,20 @@ find . -type d | xargs chmod a+rx
 find . -type f | xargs chmod a+r
 
 # Pull the latest versions of all the Docker images.
-docker pull hyperledger/composer-playground:0.16.6
-docker pull hyperledger/composer-cli:0.16.6
-docker pull hyperledger/composer-rest-server:0.16.6
-#docker pull hyperledger/vehicle-lifecycle-vda:{{ENV}}
-#docker pull hyperledger/vehicle-lifecycle-manufacturing:{{ENV}}
-#docker pull hyperledger/vehicle-lifecycle-car-builder:{{ENV}}
-#docker pull sstone1/node-red-docker
+docker pull gmoney23/alpineplay:0.16.6
+docker pull gmoney23/alpinecli:0.16.6
+docker pull gmoney23/alpinerest:0.16.6
+docker pull gmoney23/dmv
+docker pull gmoney23/manufacturing
+docker pull gmoney23/car-builder
+docker pull gmoney23/insurance
+docker pull gmoney23/nodered
 
 # stop all the docker containers
 stop
 
 # run the fabric-dev-scripts to get a running fabric
+export FABRIC_VERSION=hlfv1
 ./fabric-dev-servers/downloadFabric.sh
 ./fabric-dev-servers/startFabric.sh
 
@@ -108,7 +110,7 @@ docker run \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
   -v $(pwd)/vldstage:/home/composer/vldstage \
   -v $(pwd)/fabric-dev-servers/fabric-scripts/hlfv1/composer/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/home/composer/PeerAdmin \
-  hyperledger/composer-cli:0.16.6 \
+  gmoney23/alpinecli:0.16.6 \
   card create -p vldstage/connection.json -u PeerAdmin -r PeerAdmin -r ChannelAdmin -f /home/composer/vldstage/PeerAdmin.card -c PeerAdmin/signcerts/Admin@org1.example.com-cert.pem -k PeerAdmin/keystore/114aab0e76bf0c78308f89efc4b8c9423e31568da0c340ca187a9b17aa9a4457_sk
 
 docker run \
@@ -117,7 +119,7 @@ docker run \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
   -v $(pwd)/vldstage:/home/composer/vldstage \
   -v $(pwd)/fabric-dev-servers/fabric-scripts/hlfv1/composer/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/home/composer/PeerAdmin \
-  hyperledger/composer-cli:0.16.6 \
+  gmoney23/alpinecli:0.16.6 \
   card import -f /home/composer/vldstage/PeerAdmin.card
 
 # Start the playground.
@@ -127,7 +129,7 @@ docker run \
   --name composer \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
   -p 8080:8080 \
-  hyperledger/composer-playground:0.16.6
+  gmoney23/alpineplay:0.16.6
 
 # Deploy the business network archive.
 #docker run \
@@ -136,7 +138,7 @@ docker run \
 #  -v $(pwd)/vehicle-lifecycle-network.bna:/home/composer/vehicle-lifecycle-network.bna \
 #  -v $(pwd)/vldstage:/home/composer/vldstage \
 #  -v $(pwd)/.vld-card-store:/home/composer/.composer \
-#  hyperledger/composer-cli:0.16.6 \
+#  gmoney23/alpinecli:0.16.6 \
 #  network deploy -c PeerAdmin@hlfv1 -a vehicle-lifecycle-network.bna -A admin -S adminpw -f /home/composer/vldstage/bnaadmin.card
 #Deploy the business network archive.
 docker run \
@@ -145,7 +147,7 @@ docker run \
   -v $(pwd)/vehicle-lifecycle-network.bna:/home/composer/vehicle-lifecycle-network.bna \
   -v $(pwd)/vldstage:/home/composer/vldstage \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
-  hyperledger/composer-cli:0.16.6 \
+  gmoney23/alpinecli:0.16.6 \
   runtime install -c PeerAdmin@hlfv1 -n vehicle-lifecycle-network
 #Deploy the business network archive.
 docker run \
@@ -154,7 +156,7 @@ docker run \
   -v $(pwd)/vehicle-lifecycle-network.bna:/home/composer/vehicle-lifecycle-network.bna \
   -v $(pwd)/vldstage:/home/composer/vldstage \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
-  hyperledger/composer-cli:0.16.6 \
+  gmoney23/alpinecli:0.16.6 \
   network start -c PeerAdmin@hlfv1 -A admin -S adminpw -a vehicle-lifecycle-network.bna -f /home/composer/vldstage/bnaadmin.card
 
 docker run \
@@ -162,7 +164,7 @@ docker run \
   --network composer_default \
   -v $(pwd)/vldstage:/home/composer/vldstage \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
-  hyperledger/composer-cli:0.16.6 \
+  gmoney23/alpinecli:0.16.6 \
   card import -f /home/composer/vldstage/bnaadmin.card
 
 # Submit the setup transaction.
@@ -170,7 +172,7 @@ docker run \
   --rm \
   --network composer_default \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
-  hyperledger/composer-cli:0.16.6 \
+  gmoney23/alpinecli:0.16.6 \
   transaction submit -c admin@vehicle-lifecycle-network -d '{"$class": "org.acme.vehicle.lifecycle.SetupDemo"}'
 
 # correct permissions so that node-red can read cardstore and node-sdk can write to client-data
@@ -187,7 +189,7 @@ docker run \
   -e COMPOSER_CARD=admin@vehicle-lifecycle-network \
   -e COMPOSER_NAMESPACES=required \
   -p 3000:3000 \
-  hyperledger/composer-rest-server:0.16.6
+  gmoney23/alpinerest:0.16.6
 
 # Wait for the REST server to start and initialize.
 sleep 10
@@ -201,14 +203,14 @@ docker run \
   -e COMPOSER_BASE_URL=http://rest:3000 \
   -v $(pwd)/flows.json:/data/flows.json \
   -p 1880:1880 \
-  composer-contrib
+  gmoney23/nodered
 
 # Install custom nodes
-#docker exec \
-#  -e NPM_CONFIG_LOGLEVEL=warn \
-#  node-red \
-#  bash -c "cd /data && npm install node-red-contrib-composer && npm install node-red-contrib-scx-ibmiotapp"
-# docker restart node-red
+docker exec \
+  -e NPM_CONFIG_LOGLEVEL=warn \
+  node-red \
+  ash -c "cd /data && npm install node-red-contrib-composer && npm install node-red-contrib-scx-ibmiotapp"
+ docker restart node-red
 
 # Wait for Node-RED to start and initialize.
 sleep 10
@@ -227,7 +229,7 @@ docker run \
 -e COMPOSER_BASE_URL=http://rest:3000 \
 -e NODE_RED_BASE_URL=ws://node-red:1880 \
 -p 6001:6001 \
-vda
+gmoney23/dmv
 
 # Start the manufacturing application.
 #cd $(pwd)/../vehicle-lifecycle-manufacturing
@@ -243,7 +245,7 @@ docker run \
 -e COMPOSER_BASE_URL=http://rest:3000 \
 -e NODE_RED_BASE_URL=ws://node-red:1880 \
 -p 6002:6001 \
-manufacture
+gmoney23/manufacturing
 
 # Start the car-builder application.
 #cd $(pwd)/../vehicle-lifecycle-car-builder
@@ -258,7 +260,7 @@ docker run \
 -e COMPOSER_BASE_URL=http://rest:3000 \
 -e NODE_RED_BASE_URL=ws://node-red:1880 \
 -p 8100:8100 \
-car-builder
+gmoney23/car-builder
 
 # Start the insurance view
 #cd $(pwd)/../prince-insurance
@@ -272,7 +274,7 @@ docker run \
 -e COMPOSER_BASE_URL=http://rest:3000 \
 -e NODE_RED_BASE_URL=ws://node-red:1880 \
 -p 4200:4200 \
-insurance
+gmoney23/insurance
 
 # Wait for the applications to start and initialize.
 sleep 10

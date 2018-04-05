@@ -1,0 +1,40 @@
+FROM s390x/ubuntu:16.04
+RUN apt-get clean && apt-get update && apt-get -y install \
+		wget \
+		python-pip  
+
+RUN		cd /tmp \
+        &&      wget https://nodejs.org/dist/v8.9.4/node-v8.9.4-linux-s390x.tar.xz \
+        &&      cd .. \
+        &&      tar --strip-components=1 -xf /tmp/node-v8.9.4-linux-s390x.tar.xz	
+# Sets npm logging to warning level or greater only.
+ENV NPM_CONFIG_LOGLEVEL warn
+
+RUN mkdir /data
+
+RUN 		addgroup --gid 1000 node-red \
+	&&	adduser --uid 1000 --gid 1000 --shell /bin/sh --disabled-login --gecos NODE node-red  
+
+WORKDIR /home/node-red
+
+RUN chown -R node-red:node-red /data
+
+# Run as the node-red user ID.
+USER node-red
+
+# package.json contains Node-RED NPM module and node dependencies
+COPY package.json /home/node-red/ 
+
+RUN npm install --unsafe-perm node-red
+
+WORKDIR /home/node-red/node_modules/node-red
+
+# User configuration directory volume
+VOLUME ["/data"]
+EXPOSE 1880
+
+# Environment variable holding file path for flows configuration
+ENV FLOWS=flows.json
+ENV NODE_PATH=/home/node-red/node_modules/node-red/node_modules:/data/node_modules
+
+CMD ["npm", "start", "--","--userDir", "/data","flows.json"]
