@@ -203,41 +203,24 @@ docker run \
   -e COMPOSER_BASE_URL=http://rest:3000 \
   -v $(pwd)/flows.json:/data/flows.json \
   -p 1880:1880 \
-  gmoney23/nodered
-
-# Install custom nodes
-docker exec \
-  -e NPM_CONFIG_LOGLEVEL=warn \
-  node-red \
-  ash -c "cd /data && npm install node-red-contrib-composer && npm install node-red-contrib-scx-ibmiotapp"
- docker restart node-red
+  gmoney23/node-red-composer:0.10
 
 # Wait for Node-RED to start and initialize.
 sleep 10
 
-# Start the VDA application.
-#cd $(pwd)/../../vehicle-lifecycle-vda
-#npm install
-#bower install
-#npm build
-#npm start > /dev/null 2>&1 &
-# OLD DOCKER START FOR VDA
+# Start the DMV application.
+
 docker run \
 -d \
 --network composer_default \
---name vda \
+--name dmv \
 -e COMPOSER_BASE_URL=http://rest:3000 \
 -e NODE_RED_BASE_URL=ws://node-red:1880 \
 -p 6001:6001 \
 gmoney23/dmv
 
 # Start the manufacturing application.
-#cd $(pwd)/../vehicle-lifecycle-manufacturing
-#npm install
-#bower install
-#npm build
-#npm start > /dev/null 2>&1 &
-# OLD DOCKER START FOR MANUFACTURING
+
 docker run \
 -d \
 --network composer_default \
@@ -248,11 +231,7 @@ docker run \
 gmoney23/manufacturing
 
 # Start the car-builder application.
-#cd $(pwd)/../vehicle-lifecycle-car-builder
-#npm install
-#npm run build
-#npm start > /dev/null 2>&1 &
-# OLD DOCKER START FOR CAR BUILDER
+
 docker run \
 -d \
 --network composer_default \
@@ -263,10 +242,7 @@ docker run \
 gmoney23/car-builder
 
 # Start the insurance view
-#cd $(pwd)/../prince-insurance
-#npm install
-#npm build
-#npm start > /dev/null 2>&1 &
+
 docker run \
 -d \
 --network composer_default \
@@ -282,35 +258,15 @@ sleep 10
 # Kill any other Docker containers.
 ##docker ps -aq | xargs docker rm -f
 
-# Open the playground in a web browser.
-URLS="http://localhost:8080 http://localhost:3000/explorer/ http://localhost:1880 http://localhost:6001 http://localhost:6002 http://localhost:8100 http://localhost:4200 https://i5l9uv.internetofthings.ibmcloud.com/dashboard/#/boards/spnair@us.ibm.com-AnalyticsDefaultBoard_RuleCentric.1 https://ibmblockchain-staging-v2.stage1.ng.bluemix.net/network/e31f1b41705a46298b77fe435b5fdfc7/members"
-case "$(uname)" in
-"Darwin") open ${URLS}
-          ;;
-"Linux")  if [ -n "$BROWSER" ] ; then
-	       	        $BROWSER http://localhost:8080 http://localhost:3000/explorer/ http://localhost:1880 http://localhost:6001 http://localhost:6002 http://localhost:8100 http://localhost:4200 https://i5l9uv.internetofthings.ibmcloud.com/dashboard/#/boards/spnair@us.ibm.com-AnalyticsDefaultBoard_RuleCentric.1 https://ibmblockchain-staging-v2.stage1.ng.bluemix.net/network/e31f1b41705a46298b77fe435b5fdfc7/members
-	        elif    which x-www-browser > /dev/null ; then
-                  nohup x-www-browser ${URLS} < /dev/null > /dev/null 2>&1 &
-          elif    which xdg-open > /dev/null ; then
-                  for URL in ${URLS} ; do
-                          xdg-open ${URL}
-	                done
-          elif  	which gnome-open > /dev/null ; then
-	                gnome-open http://localhost:8080 http://localhost:3000/explorer/ http://localhost:1880 http://localhost:6001 http://localhost:6002 http://localhost:8100 http://localhost:4200 https://i5l9uv.internetofthings.ibmcloud.com/dashboard/#/boards/spnair@us.ibm.com-AnalyticsDefaultBoard_RuleCentric.1 https://ibmblockchain-staging-v2.stage1.ng.bluemix.net/network/e31f1b41705a46298b77fe435b5fdfc7/members
-          #elif other types blah blah
-	        else
-    	            echo "Could not detect web browser to use - please launch Composer Playground URL using your chosen browser ie: <browser executable name> http://localhost:8080 or set your BROWSER variable to the browser launcher in your PATH"
-	        fi
-          ;;
-*)        echo "Playground not launched - this OS is currently not supported "
-          ;;
-esac
-
-# IF IOT PLATFORM DIDNT OPEN DUE TO REQUIRING LOG IN, LOG IN THEN FOLLOW THIS LINK
-# https://i5l9uv.internetofthings.ibmcloud.com/dashboard/#/boards/spnair@us.ibm.com-AnalyticsDefaultBoard_RuleCentric.1
-
-# IF BLOCKCHAIN PLATFORM DIDN'T OPEN TO TO REQUIRING LOG IN, LOG IN THEN FOLLOW THIS LINK
-# https://ibmblockchain-staging-v2.stage1.ng.bluemix.net/network/e31f1b41705a46298b77fe435b5fdfc7/members
+# Type the following urls in a web browser opening a new tab for each
+# Replace "yourip" with the ip of your linux1 machine
+# For composer playground: [yourip:8080]
+# For composer rest-server: [yourip:3000/explorer/]
+# For node-red: [yourip:1880]
+# For dmv view: [yourip:6001]
+# For manufacturing view: [yourip:6002]
+# For car-builder view: [yourip:8100]
+# For insurance view: [yourip:4200]
 
 # Exit; this is required as the payload immediately follows.
 exit 0
