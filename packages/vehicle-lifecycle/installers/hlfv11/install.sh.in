@@ -54,20 +54,20 @@ find . -type d | xargs chmod a+rx
 find . -type f | xargs chmod a+r
 
 # Pull the latest versions of all the Docker images.
-docker pull gmoney23/alpineplay:0.16.6
-docker pull gmoney23/alpinecli:0.16.6
-docker pull gmoney23/alpinerest:0.16.6
+docker pull gmoney23/alpineplay
+docker pull gmoney23/alpinecli
+docker pull gmoney23/alpinerest
 docker pull gmoney23/dmv
 docker pull gmoney23/manufacturing
 docker pull gmoney23/car-builder
 docker pull gmoney23/insurance
-docker pull gmoney23/node-red-composer:0.10
+docker pull gmoney23/node-red-composer:0.11
 
 # stop all the docker containers
 stop
 
 # run the fabric-dev-scripts to get a running fabric
-export FABRIC_VERSION=hlfv1
+export FABRIC_VERSION=hlfv11
 ./fabric-dev-servers/downloadFabric.sh
 ./fabric-dev-servers/startFabric.sh
 
@@ -81,27 +81,63 @@ rm -fr $(pwd)/vldstage
 mkdir $(pwd)/vldstage
 chmod 777 $(pwd)/vldstage
 echo '{
-  "type": "hlfv1",
-  "name": "hlfv1",
-  "orderers": [
-    {
-      "url": "grpc://orderer.example.com:7050"
-    }
-  ],
-  "ca": {
-    "url": "http://ca.org1.example.com:7054",
-    "name": "ca.org1.example.com"
-  },
-  "peers": [
-    {
-      "requestURL": "grpc://peer0.org1.example.com:7051",
-      "eventURL": "grpc://peer0.org1.example.com:7053"
-    }
-  ],
-  "channel": "composerchannel",
-  "mspID": "Org1MSP",
-  "timeout": "300"
+        "name": "hlfv11",
+        "version": "1.0.0",
+        "client": {
+                "organization": "Org1",
+                "connection": {
+                        "timeout": {
+                                "peer": {
+                                        "endorser": "300",
+                                        "eventHub": "300",
+                                        "eventReg": "300"
+                                },
+                                "orderer": "300"
+                        }
+                }
+        },
+        "orderers": {
+                "orderer.example.com": {
+                        "url": "grpc://orderer.example.com:7050",
+                        "grpcOptions": {}
+                }
+        },
+        "peers": {
+                "peer0.org1.example.com": {
+                        "url": "grpc://peer0.org1.example.com:7051",
+                        "eventUrl": "grpc://peer0.org1.example.com:7053",
+                        "grpcOptions": {},
+                        "endorsingPeer": true,
+                        "chaincodeQuery": true,
+                        "ledgerQuery": true,
+                        "eventSource": true
+                }
+        },
+        "channels": {
+                "composerchannel": {
+                        "orderers": ["orderer.example.com"],
+                        "peers": {
+                                "peer0.org1.example.com": {}
+                        }
+                }
+        },
+        "certificateAuthorities": {
+                "ca.org1.example.com": {
+                        "url": "http://ca.org1.example.com:7054",
+                        "caName": "ca.org1.example.com"
+                }
+        },
+        "organizations": {
+                "Org1": {
+                        "mspid": "Org1MSP",
+                        "peers": ["peer0.org1.example.com"],
+                        "certificateAuthorities": ["ca.org1.example.com"]
+                }
+        },
+        "x-type": "hlfv1",
+        "x-commitTimeout": 300
 }' > $(pwd)/vldstage/connection.json
+
 
 # Build the PeerAdmin card and import it
 docker run \
@@ -109,8 +145,8 @@ docker run \
   --network composer_default \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
   -v $(pwd)/vldstage:/home/composer/vldstage \
-  -v $(pwd)/fabric-dev-servers/fabric-scripts/hlfv1/composer/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/home/composer/PeerAdmin \
-  gmoney23/alpinecli:0.16.6 \
+  -v $(pwd)/fabric-dev-servers/fabric-scripts/hlfv11/composer/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/home/composer/PeerAdmin \
+  gmoney23/alpinecli \
   card create -p vldstage/connection.json -u PeerAdmin -r PeerAdmin -r ChannelAdmin -f /home/composer/vldstage/PeerAdmin.card -c PeerAdmin/signcerts/Admin@org1.example.com-cert.pem -k PeerAdmin/keystore/114aab0e76bf0c78308f89efc4b8c9423e31568da0c340ca187a9b17aa9a4457_sk
 
 docker run \
@@ -118,8 +154,8 @@ docker run \
   --network composer_default \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
   -v $(pwd)/vldstage:/home/composer/vldstage \
-  -v $(pwd)/fabric-dev-servers/fabric-scripts/hlfv1/composer/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/home/composer/PeerAdmin \
-  gmoney23/alpinecli:0.16.6 \
+  -v $(pwd)/fabric-dev-servers/fabric-scripts/hlfv11/composer/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/home/composer/PeerAdmin \
+  gmoney23/alpinecli \
   card import -f /home/composer/vldstage/PeerAdmin.card
 
 # Start the playground.
@@ -129,17 +165,8 @@ docker run \
   --name composer \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
   -p 8080:8080 \
-  gmoney23/alpineplay:0.16.6
+  gmoney23/alpineplay
 
-# Deploy the business network archive.
-#docker run \
-#  --rm \
-#  --network composer_default \
-#  -v $(pwd)/vehicle-lifecycle-network.bna:/home/composer/vehicle-lifecycle-network.bna \
-#  -v $(pwd)/vldstage:/home/composer/vldstage \
-#  -v $(pwd)/.vld-card-store:/home/composer/.composer \
-#  gmoney23/alpinecli:0.16.6 \
-#  network deploy -c PeerAdmin@hlfv1 -a vehicle-lifecycle-network.bna -A admin -S adminpw -f /home/composer/vldstage/bnaadmin.card
 #Deploy the business network archive.
 docker run \
   --rm \
@@ -147,8 +174,8 @@ docker run \
   -v $(pwd)/vehicle-lifecycle-network.bna:/home/composer/vehicle-lifecycle-network.bna \
   -v $(pwd)/vldstage:/home/composer/vldstage \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
-  gmoney23/alpinecli:0.16.6 \
-  runtime install -c PeerAdmin@hlfv1 -n vehicle-lifecycle-network
+  gmoney23/alpinecli \
+  network install -c PeerAdmin@hlfv11 -n vehicle-lifecycle-network
 #Deploy the business network archive.
 docker run \
   --rm \
@@ -156,15 +183,15 @@ docker run \
   -v $(pwd)/vehicle-lifecycle-network.bna:/home/composer/vehicle-lifecycle-network.bna \
   -v $(pwd)/vldstage:/home/composer/vldstage \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
-  gmoney23/alpinecli:0.16.6 \
-  network start -c PeerAdmin@hlfv1 -A admin -S adminpw -a vehicle-lifecycle-network.bna -f /home/composer/vldstage/bnaadmin.card
+  gmoney23/alpinecli \
+  network start -c PeerAdmin@hlfv11 -A admin -S adminpw -a vehicle-lifecycle-network.bna -f /home/composer/vldstage/bnaadmin.card
 
 docker run \
   --rm \
   --network composer_default \
   -v $(pwd)/vldstage:/home/composer/vldstage \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
-  gmoney23/alpinecli:0.16.6 \
+  gmoney23/alpinecli \
   card import -f /home/composer/vldstage/bnaadmin.card
 
 # Submit the setup transaction.
@@ -172,7 +199,7 @@ docker run \
   --rm \
   --network composer_default \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
-  gmoney23/alpinecli:0.16.6 \
+  gmoney23/alpinecli \
   transaction submit -c admin@vehicle-lifecycle-network -d '{"$class": "org.acme.vehicle.lifecycle.SetupDemo"}'
 
 # correct permissions so that node-red can read cardstore and node-sdk can write to client-data
@@ -189,7 +216,7 @@ docker run \
   -e COMPOSER_CARD=admin@vehicle-lifecycle-network \
   -e COMPOSER_NAMESPACES=required \
   -p 3000:3000 \
-  gmoney23/alpinerest:0.16.6
+  gmoney23/alpinerest
 
 # Wait for the REST server to start and initialize.
 sleep 10
@@ -203,7 +230,7 @@ docker run \
   -e COMPOSER_BASE_URL=http://rest:3000 \
   -v $(pwd)/flows.json:/data/flows.json \
   -p 1880:1880 \
-  gmoney23/node-red-composer:0.10
+  gmoney23/node-red-composer:0.11
 
 # Wait for Node-RED to start and initialize.
 sleep 10
