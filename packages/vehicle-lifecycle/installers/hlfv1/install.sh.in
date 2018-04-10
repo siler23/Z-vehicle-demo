@@ -216,7 +216,7 @@ docker run \
 --name dmv \
 -e COMPOSER_BASE_URL=http://rest:3000 \
 -e NODE_RED_BASE_URL=ws://node-red:1880 \
--p 6001:6001 \
+-p 3001:6001 \
 gmoney23/dmv
 
 # Start the manufacturing application.
@@ -227,7 +227,7 @@ docker run \
 --name manufacturing \
 -e COMPOSER_BASE_URL=http://rest:3000 \
 -e NODE_RED_BASE_URL=ws://node-red:1880 \
--p 6002:6001 \
+-p 3002:6001 \
 gmoney23/manufacturing
 
 # Start the car-builder application.
@@ -238,7 +238,7 @@ docker run \
 --name car-builder \
 -e COMPOSER_BASE_URL=http://rest:3000 \
 -e NODE_RED_BASE_URL=ws://node-red:1880 \
--p 8100:8100 \
+-p 8081:8100 \
 gmoney23/car-builder
 
 # Start the insurance view
@@ -263,9 +263,9 @@ sleep 10
 # For composer playground: [yourip:8080]
 # For composer rest-server: [yourip:3000/explorer/]
 # For node-red: [yourip:1880]
-# For dmv view: [yourip:6001]
-# For manufacturing view: [yourip:6002]
-# For car-builder view: [yourip:8100]
+# For dmv view: [yourip:3001]
+# For manufacturing view: [yourip:3002]
+# For car-builder view: [yourip:8081]
 # For insurance view: [yourip:4200]
 
 # Exit; this is required as the payload immediately follows.

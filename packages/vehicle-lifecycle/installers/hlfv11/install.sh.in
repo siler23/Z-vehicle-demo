@@ -269,7 +269,6 @@ docker run \
 gmoney23/car-builder
 
 # Start the insurance view
-
 docker run \
 -d \
 --network composer_default \
