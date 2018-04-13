@@ -73,6 +73,9 @@ else
         echo "Clean Slate"
 fi
 
+#get my external (public ip address)
+export ip="$(ifconfig | grep -v 'eth0:' | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
+
 # run the fabric-dev-scripts to get a running fabric
 export FABRIC_VERSION=hlfv11
 ./fabric-dev-servers/downloadFabric.sh
@@ -275,9 +278,6 @@ docker run \
 -p 8081:8100 \
 gmoney23/car-builder
 
-#get my external (public ip address)
-export ip="$(ifconfig | grep -v 'eth0:' | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
-
 # Make insurance work from my Linux One's specific ip address
 cd $(pwd)/../../prince-insurance
 sed -i "s/myip/$ip/g" package.json
@@ -298,13 +298,7 @@ npm start > /dev/null 2>&1 &
 sleep 10
 
 # Copy and paste the following urls in a web browser opening a new tab for each
-echo "For composer playground: $ip:8080"
-echo "For composer rest-server: $ip:3000/explorer/"
-echo "For node-red: $ip:1880"
-echo "For dmv view: $ip:3001"
-echo "For manufacturing view: $ip:3002"
-echo "For car-builder view: $ip:8081"
-echo "For insurance view: $ip:4200"
+echo -e "For composer playground: $ip:8080\nFor composer rest-server: $ip:3000/explorer/\nFor node-red: $ip:1880\nFor dmv view: $ip:3001\nFor manufacturing view: $ip:3002\nFor car-builder view: $ip:8081\nFor insurance view: $ip:4200"
 
 # Exit; this is required as the payload immediately follows.
 exit 0
