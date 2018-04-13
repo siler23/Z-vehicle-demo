@@ -24,7 +24,7 @@ export class PolicyComponent {
 
     this.last_event_id = "BLANK";
 
-    let webSocketURLAlerts = 'ws://localhost:1880/ws/addusageevent';
+    let webSocketURLAlerts = 'ws://192.168.22.116:1880/ws/addusageevent';
     
     let websocketAlerts = new WebSocket(webSocketURLAlerts);
 
@@ -140,7 +140,7 @@ export class PolicyComponent {
     //console.log(this.policy.vId)
     //this.car = this.policy.vId
 
-    // let webSocketURL = 'ws://localhost:1880/ws/location';
+    // let webSocketURL = 'ws://192.168.22.116:1880/ws/location';
 
     // console.log('connecting websocket', webSocketURL);
     // let websocket = new WebSocket(webSocketURL);
@@ -154,7 +154,7 @@ export class PolicyComponent {
     //   console.log(this.location);
     // }
 
-    let webSocketIoTURL = 'ws://localhost:1880/ws/iot';
+    let webSocketIoTURL = 'ws://192.168.22.116:1880/ws/iot';
 
     console.log('connecting websocket', webSocketIoTURL);
     this.websocketIoT = new WebSocket(webSocketIoTURL);
@@ -273,7 +273,7 @@ export class PolicyComponent {
 
     var parent = this;
     var XMLReq = new XMLHttpRequest();
-    XMLReq.open("GET", "http://localhost:3000/api/Policy/"+policy_id+"?access_token=bsIvE18JpnGBmUnqaWHeogNcqHisKgdk6aFDx56iHANaWhf90OzbCmjAtrEZ3gJf");
+    XMLReq.open("GET", "http://192.168.22.116:3000/api/Policy/"+policy_id+"?access_token=bsIvE18JpnGBmUnqaWHeogNcqHisKgdk6aFDx56iHANaWhf90OzbCmjAtrEZ3gJf");
     XMLReq.onreadystatechange = function() {
       if (XMLReq.readyState == XMLHttpRequest.DONE)
       {
@@ -293,7 +293,7 @@ export class PolicyComponent {
     var vehicle_id = vehicle_id_data[vehicle_id_data.length-1]
 
     var XMLReq = new XMLHttpRequest();
-    XMLReq.open("GET", "http://localhost:3000/api/Vehicle/"+vehicle_id+"?access_token=bsIvE18JpnGBmUnqaWHeogNcqHisKgdk6aFDx56iHANaWhf90OzbCmjAtrEZ3gJf");
+    XMLReq.open("GET", "http://192.168.22.116:3000/api/Vehicle/"+vehicle_id+"?access_token=bsIvE18JpnGBmUnqaWHeogNcqHisKgdk6aFDx56iHANaWhf90OzbCmjAtrEZ3gJf");
     XMLReq.onreadystatechange = function() {
       if (XMLReq.readyState == XMLHttpRequest.DONE)
       {
@@ -311,7 +311,7 @@ export class PolicyComponent {
     var vehicle_id = vehicle_id_data[vehicle_id_data.length-1]
 
     var XMLReq = new XMLHttpRequest();
-    XMLReq.open("GET", "http://localhost:3000/api/queries/Q2?vehicleDetails=resource%3Aorg.vda.Vehicle%23"+vehicle_id);
+    XMLReq.open("GET", "http://192.168.22.116:3000/api/queries/Q2?vehicleDetails=resource%3Aorg.vda.Vehicle%23"+vehicle_id);
     XMLReq.onreadystatechange = function() {
       if (XMLReq.readyState == XMLHttpRequest.DONE)
       {

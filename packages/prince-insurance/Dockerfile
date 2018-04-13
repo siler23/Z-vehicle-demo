@@ -10,5 +10,5 @@ RUN apk add --no-cache make gcc g++ python git libc6-compat && \
     npm cache clean --force && \
     apk del python
 COPY . /usr/src/app/
-EXPOSE 4200
+EXPOSE 4200 
 CMD [ "pm2-docker", "npm", "--", "start" ]

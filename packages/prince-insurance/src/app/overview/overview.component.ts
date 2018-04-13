@@ -20,7 +20,7 @@ export class OverviewComponent implements OnInit {
     this.num_policies = 0;
     this.num_alerts = 0; 
 
-    let websocketURL = 'ws://localhost:1880/ws/requestpolicy';
+    let websocketURL = 'ws://192.168.22.116:1880/ws/requestpolicy';
     
     console.log('connecting websocket', websocketURL);
     let websocket = new WebSocket(websocketURL);
@@ -75,7 +75,7 @@ export class OverviewComponent implements OnInit {
   {
     var parent = this;
     var XMLReq = new XMLHttpRequest();
-    XMLReq.open("GET", "http://localhost:3000/api/queries/Q1?insurer=resource%3Aorg.insurance.Insurer%23prince");
+    XMLReq.open("GET", "http://192.168.22.116:3000/api/queries/Q1?insurer=resource%3Aorg.insurance.Insurer%23prince");
     XMLReq.onreadystatechange = function() {
       if (XMLReq.readyState == XMLHttpRequest.DONE)
       {
@@ -98,7 +98,7 @@ export class OverviewComponent implements OnInit {
         var vin = vin_data[vin_data.length-1]
   
         var XMLReq = new XMLHttpRequest();
-        XMLReq.open("GET", "http://localhost:3000/api/queries/Q2?vehicleDetails=resource%3Aorg.vda.Vehicle%23"+vin);
+        XMLReq.open("GET", "http://192.168.22.116:3000/api/queries/Q2?vehicleDetails=resource%3Aorg.vda.Vehicle%23"+vin);
         XMLReq.onreadystatechange = function() {
           if (XMLReq.readyState == XMLHttpRequest.DONE)
           {
