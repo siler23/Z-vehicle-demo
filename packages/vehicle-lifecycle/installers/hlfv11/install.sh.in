@@ -60,7 +60,7 @@ docker pull gmoney23/alpinerest
 docker pull gmoney23/dmv
 docker pull gmoney23/manufacturing
 docker pull gmoney23/car-builder
-docker pull gmoney23/insurance
+docker pull gmoney23/insurance:ipbound
 docker pull gmoney23/node-red-composer:0.11
 
 # stop all the docker containers
@@ -230,7 +230,7 @@ docker run \
   -e COMPOSER_BASE_URL=http://rest:3000 \
   -v $(pwd)/flows.json:/data/flows.json \
   -p 1880:1880 \
-  node-red
+  gmoney23/node-red-composer:0.11
 
 # Wait for Node-RED to start and initialize.
 sleep 10
@@ -276,7 +276,7 @@ docker run \
 -e COMPOSER_BASE_URL=http://rest:3000 \
 -e NODE_RED_BASE_URL=ws://node-red:1880 \
 -p 4200:4200 \
-insurance
+gmoney23/insurance:ipbound
 
 # Wait for the applications to start and initialize.
 sleep 10
