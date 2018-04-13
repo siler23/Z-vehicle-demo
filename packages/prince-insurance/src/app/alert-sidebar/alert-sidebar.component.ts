@@ -14,7 +14,7 @@ export class AlertSidebarComponent implements OnInit {
 
     this.last_event_id = "BLANK";
 
-    let webSocketURL = 'ws://192.168.22.116:1880/ws/addusageevent';
+    let webSocketURL = 'ws://myip:1880/ws/addusageevent';
 
     console.log('connecting websocket', webSocketURL);
     let websocket = new WebSocket(webSocketURL);

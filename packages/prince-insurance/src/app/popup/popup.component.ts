@@ -13,7 +13,7 @@ export class PopupComponent implements OnInit {
 
   constructor() {
 
-    let websocketURL = 'ws://192.168.22.116:1880/ws/createpolicy';
+    let websocketURL = 'ws://myip:1880/ws/createpolicy';
     
     console.log('connecting websocket', websocketURL);
     this.websocket = new WebSocket(websocketURL);
@@ -26,7 +26,7 @@ export class PopupComponent implements OnInit {
       
     }
 
-    let websocketRequestInsuranceURL = 'ws://192.168.22.116:1880/ws/requestpolicy';
+    let websocketRequestInsuranceURL = 'ws://myip:1880/ws/requestpolicy';
     
     console.log('connecting websocket', websocketRequestInsuranceURL);
     this.websocket_request_policy = new WebSocket(websocketRequestInsuranceURL);
@@ -73,7 +73,7 @@ export class PopupComponent implements OnInit {
     console.log("CALLED")
     var parent = this;
     var XMLReq = new XMLHttpRequest();
-    XMLReq.open("GET", "http://192.168.22.116:3000/api/Policy/"+policy_id+"?access_token=bsIvE18JpnGBmUnqaWHeogNcqHisKgdk6aFDx56iHANaWhf90OzbCmjAtrEZ3gJf");
+    XMLReq.open("GET", "http://myip:3000/api/Policy/"+policy_id+"?access_token=bsIvE18JpnGBmUnqaWHeogNcqHisKgdk6aFDx56iHANaWhf90OzbCmjAtrEZ3gJf");
     XMLReq.onreadystatechange = function() {
       if (XMLReq.status == 404 && XMLReq.readyState == XMLHttpRequest.DONE)
       {
