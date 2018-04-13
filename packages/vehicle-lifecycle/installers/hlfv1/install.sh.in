@@ -60,7 +60,6 @@ docker pull gmoney23/alpinerest:0.16.6
 docker pull gmoney23/dmv
 docker pull gmoney23/manufacturing
 docker pull gmoney23/car-builder
-docker pull gmoney23/insurance
 docker pull gmoney23/node-red-composer:0.10
 
 # stop all the docker containers
