@@ -66,6 +66,14 @@ docker pull gmoney23/node-red-composer:0.10
 # stop all the docker containers
 stop
 
+# Stop insurance app if there from previous running
+if [ $(lsof -t -i:4200) ]
+then
+        kill $(lsof -t -i:4200)
+else
+        echo "Clean Slate"
+fi
+
 # run the fabric-dev-scripts to get a running fabric
 export FABRIC_VERSION=hlfv1
 ./fabric-dev-servers/downloadFabric.sh
@@ -241,32 +249,40 @@ docker run \
 -p 8081:8100 \
 gmoney23/car-builder
 
-# Start the insurance view
+#get my external (public ip address)
+export ip="$(ifconfig | grep -v 'eth0:' | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
 
-docker run \
--d \
---network composer_default \
---name insurer \
--e COMPOSER_BASE_URL=http://rest:3000 \
--e NODE_RED_BASE_URL=ws://node-red:1880 \
--p 4200:4200 \
-gmoney23/insurance
+# Make insurance work from my Linux One's specific ip address
+cd $(pwd)/../../prince-insurance
+sed -i "s/myip/$ip/g" package.json
+cd  src/app/alert-sidebar
+sed -i "s/myip/$ip/g" alert-sidebar.component.ts
+cd ../overview
+sed -i "s/myip/$ip/g" overview.component.ts
+cd ../policy
+sed -i "s/myip/$ip/g" policy.component.ts
+cd ../popup
+sed -i "s/myip/$ip/g" popup.component.ts
+cd ../../..
+
+# Start the insurance application
+npm install
+npm start > /dev/null 2>&1 &
+# Wait for the applications to start and initialize.
+sleep 10
+
 
 # Wait for the applications to start and initialize.
 sleep 10
 
-# Kill any other Docker containers.
-##docker ps -aq | xargs docker rm -f
-
-# Type the following urls in a web browser opening a new tab for each
-# Replace "yourip" with the ip of your linux1 machine
-# For composer playground: [yourip:8080]
-# For composer rest-server: [yourip:3000/explorer/]
-# For node-red: [yourip:1880]
-# For dmv view: [yourip:3001]
-# For manufacturing view: [yourip:3002]
-# For car-builder view: [yourip:8081]
-# For insurance view: [yourip:4200]
+# Copy and paste the following urls in a web browser opening a new tab for each
+echo "For composer playground: $ip:8080"
+echo "For composer rest-server: $ip:3000/explorer/"
+echo "For node-red: $ip:1880"
+echo "For dmv view: $ip:3001"
+echo "For manufacturing view: $ip:3002"
+echo "For car-builder view: $ip:8081"
+echo "For insurance view: $ip:4200"
 
 # Exit; this is required as the payload immediately follows.
 exit 0
