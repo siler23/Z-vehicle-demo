@@ -95,7 +95,7 @@ export class BuilderPage implements OnInit {
       $class: 'org.acme.vehicle.lifecycle.manufacturer.PlaceOrder',
       vehicleDetails: vehicleDetails,
       manufacturer: 'resource:org.acme.vehicle.lifecycle.manufacturer.Manufacturer#Arium',
-      orderer: 'resource:org.acme.vehicle.lifecycle.PrivateOwner#dan',
+      orderer: 'resource:org.acme.vehicle.lifecycle.PrivateOwner#Paul',
       orderId: this.generateID()
     };
 

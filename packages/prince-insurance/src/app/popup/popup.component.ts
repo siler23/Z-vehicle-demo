@@ -55,8 +55,8 @@ export class PopupComponent implements OnInit {
       $class: "org.insurance.CreatePolicy",
       policyId: pID,
       vehicleDetails: "resource:org.vda.Vehicle#"+(<HTMLInputElement>document.getElementById("vin")).value,
-      holder: "resource:org.acme.vehicle.lifecycle.PrivateOwner#dan",
-      insurer: "resource:org.insurance.Insurer#prince",
+      holder: "resource:org.acme.vehicle.lifecycle.PrivateOwner#Paul",
+      insurer: "resource:org.insurance.Insurer#Prince",
       policyType: "Fully Comprehensive"
     };
     
