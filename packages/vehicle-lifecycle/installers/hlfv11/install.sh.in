@@ -194,7 +194,7 @@ docker run \
   -v $(pwd)/vldstage:/home/composer/vldstage \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
   gmoney23/alpinecli \
-  network start --networkName vehicle-lifecycle-network --networkVersion 0.1.17 --networkAdmin admin --networkAdminEnrollSecret adminpw --card PeerAdmin@hlfv11 --file /home/composer/vldstage/bnaadmin.card
+  network start --networkName vehicle-lifecycle-network --networkVersion 0.1.18 --networkAdmin admin --networkAdminEnrollSecret adminpw --card PeerAdmin@hlfv11 --file /home/composer/vldstage/bnaadmin.card
 
 docker run \
   --rm \
