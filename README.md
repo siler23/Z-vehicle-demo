@@ -3,17 +3,12 @@
 This repository contains an application that adds IoT features and new views to the Hypeledger Composer vehicle lifeycle sample application.
 
 To run this demonstration you should have installed:
-- NodeJS v6.x.x
-- Npm v3.x.x 
+- NodeJS v8.9.x
+- Npm v5.6.x 
 - Docker
 - IoT sensortag (optional)
 
-Currently this demo's installer is written to run only on MacOS
-
-To install the necessary node modules for this demonstration you should run the following command:
-```
-npm install
-```
+Currently this demo's installer is written to run on Z systems (s390x)
 
 You can then build the demonstration by in the packages/vehicle-lifecycle folder running the commands:
 ```
