@@ -16,14 +16,14 @@ You can then build the demonstration by in the packages/vehicle-lifecycle folder
 cat installers/hlfv1/install.sh | bash
 ```
 
-This should open each of the demonstration pages in your default browser.
+This will post urls for each of the web applications in the demo which you should copy and paste into your web browser in separate tabs.
 
 (Note: This repository is designed to run using fixed versions of Hyperledger Fabric and Composer rather than the latest cuts. Installation may result in npm warnings)
 
 ## Running the car builder application on your phone
 The car builder application can be run on a smart phone by following the instructions available on the [ionic website](https://ionicframework.com/docs/intro/deploying/)
 
-Once you have the application installed you can link it to the rest of the demo by on the car builder application home screen clicking the cog icon in the top right and then entering the IP address of you computer running the rest of the demo followed by :1880 (e.g. 0.0.0.0:1880). Then press the update button.
+Once you have the application installed you can link it to the rest of the demo by on the car builder application home screen clicking the cog icon in the top right and then entering the IP address of you computer running the rest of the demo followed by :1880 (e.g. myip:1880). Then press the update button.
 
 ## Adding your IoT device to the Node-RED flow
 
